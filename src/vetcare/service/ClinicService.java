@@ -354,8 +354,12 @@ public class ClinicService {
             throw new IllegalArgumentException("Date and time slot are required.");
         }
         String cleanDate = date.trim();
-        // Validate date format
-        LocalDate.parse(cleanDate);
+        // Validate date format and future-only constraint (FR-11)
+        LocalDate parsedDate = LocalDate.parse(cleanDate);
+        if (!parsedDate.isAfter(LocalDate.now().minusDays(1))) {
+            throw new IllegalArgumentException(
+                "Scheduling Rule (FR-11): Appointment date must be today or in the future. Received: " + cleanDate);
+        }
 
         // BR-02 & FR-05: Anti-Double Booking
         for (Appointment existing : store.appointments) {
@@ -416,6 +420,11 @@ public class ClinicService {
         if (a == null) throw new IllegalArgumentException("Appointment not found.");
         if ("Cancelled".equals(a.getStatus())) {
             throw new IllegalStateException("Cannot record EMR for a cancelled appointment.");
+        }
+        // FR-13: EMR can only proceed after patient has been checked in (Checked-in status)
+        if (!"Checked-in".equals(a.getStatus()) && !"Completed".equals(a.getStatus())) {
+            throw new IllegalStateException(
+                "Clinical Flow Error (FR-13): EMR recording requires the patient to be checked in first. Current status: " + a.getStatus());
         }
         for (EmrRecord existing : store.emrRecords) {
             if (existing.getAppointmentId() == appointmentId) {
