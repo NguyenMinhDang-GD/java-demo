@@ -128,12 +128,12 @@ public class ClinicService {
         for (User u : store.users) {
             if (u.getUsername().equalsIgnoreCase(username.trim()) && u.getPassword().equals(password)) {
                 if (u.isLocked()) {
-                    throw new SecurityException("Account is locked (FR-10). Contact Clinic Manager (Admin).");
+                    throw new SecurityException("Account is locked. Please contact Clinic Manager (Admin).");
                 }
                 return u;
             }
         }
-        throw new SecurityException("Invalid username or password (FR-01).");
+        throw new SecurityException("Invalid username or password.");
     }
 
     public User findUserByUsername(String username) {
@@ -206,7 +206,7 @@ public class ClinicService {
         String cleanPhone = phone.trim();
         for (Owner existing : store.owners) {
             if (existing.getPhone().equals(cleanPhone)) {
-                throw new IllegalArgumentException("Duplicate Owner phone number detected (FR-12): Phone \""
+                throw new IllegalArgumentException("Duplicate Owner phone number detected: Phone \""
                         + cleanPhone + "\" is already registered to " + existing.getFullName() + ".");
             }
         }
@@ -238,7 +238,7 @@ public class ClinicService {
 
     public Pet addPet(Integer ownerId, String name, String species, String breed, int age, String gender) {
         if (ownerId == null || findOwnerById(ownerId) == null) {
-            throw new IllegalArgumentException("Pet Identification Rule (BR-01): Every pet must be linked to a valid Owner.");
+            throw new IllegalArgumentException("Every pet must be linked to a valid Owner.");
         }
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid field: Pet name is required.");
@@ -367,7 +367,7 @@ public class ClinicService {
                     && existing.getDate().equals(cleanDate)
                     && existing.getTimeSlot().equals(timeSlot)
                     && !"Cancelled".equals(existing.getStatus())) {
-                throw new IllegalStateException("Schedule Conflict (BR-02): " + vet.getFullName()
+                throw new IllegalStateException("Schedule Conflict: " + vet.getFullName()
                         + " already has an appointment on " + cleanDate + " at " + timeSlot + ".");
             }
         }
@@ -383,7 +383,7 @@ public class ClinicService {
         Appointment a = findAppointmentById(appointmentId);
         if (a == null) throw new IllegalArgumentException("Appointment not found.");
         if (!"Scheduled".equals(a.getStatus())) {
-            throw new IllegalStateException("Only 'Scheduled' appointments can be checked in (FR-13).");
+            throw new IllegalStateException("Only 'Scheduled' appointments can be checked in.");
         }
         if (weightKg <= 0 || temperatureC <= 0) {
             throw new IllegalArgumentException("Weight (kg) and Temperature (°C) must be greater than 0.");
@@ -413,7 +413,7 @@ public class ClinicService {
                                           Integer vaccineItemId, String vaccineDate) {
         // BR-03: Medical Authority
         if (currentUser == null || !"Veterinarian".equals(currentUser.getRole())) {
-            throw new SecurityException("Medical Authority Error (BR-03): Only a Veterinarian is authorized to finalize diagnoses, prescriptions, and EMRs.");
+            throw new SecurityException("Access Denied: Only a Veterinarian is authorized to finalize diagnoses, prescriptions, and EMRs.");
         }
 
         Appointment a = findAppointmentById(appointmentId);
@@ -440,7 +440,7 @@ public class ClinicService {
 
         // BR-04: Vaccination Prerequisite
         if (vaccineItemId != null && !screeningPassed) {
-            throw new IllegalStateException("Vaccination Prerequisite Error (BR-04): Pet must pass basic clinical screening before any vaccine is administered.");
+            throw new IllegalStateException("Vaccination Prerequisite: Pet must pass basic clinical screening before any vaccine is administered.");
         }
 
         if (vaccineItemId != null) {
@@ -524,7 +524,7 @@ public class ClinicService {
 
         // BR-05: Invoicing Rule
         if (!"Completed".equals(a.getStatus())) {
-            throw new IllegalStateException("Invoicing Rule Violation (BR-05): Invoice can only be generated after the Veterinarian completes the consultation (current status: " + a.getStatus() + ").");
+            throw new IllegalStateException("Invoicing Rule: Invoice can only be generated after the Veterinarian completes the consultation (current status: " + a.getStatus() + ").");
         }
 
         Invoice existing = findInvoiceByAppointmentId(appointmentId);
@@ -582,7 +582,7 @@ public class ClinicService {
     public CatalogItem addOrUpdateCatalogItem(User currentUser, Integer id, String name, String category,
                                               double price, String unit, int boosterCycleDays) {
         if (currentUser == null || !"Admin".equals(currentUser.getRole())) {
-            throw new SecurityException("Access Denied (UC-07): Only Admin can configure services and prices (FR-03).");
+            throw new SecurityException("Access Denied: Only Admin can configure services and prices.");
         }
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid field: Catalog item name is required.");
@@ -623,7 +623,7 @@ public class ClinicService {
 
     public User addStaffUser(User currentUser, String username, String password, String fullName, String role) {
         if (currentUser == null || !"Admin".equals(currentUser.getRole())) {
-            throw new SecurityException("Access Denied (UC-07): Only Admin can manage staff accounts (FR-10).");
+            throw new SecurityException("Access Denied: Only Admin can manage staff accounts.");
         }
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid field: Username is required.");
@@ -655,7 +655,7 @@ public class ClinicService {
 
     public User toggleUserLock(User currentUser, int targetUserId) {
         if (currentUser == null || !"Admin".equals(currentUser.getRole())) {
-            throw new SecurityException("Access Denied (UC-07): Only Admin can lock/unlock staff accounts (FR-10).");
+            throw new SecurityException("Access Denied: Only Admin can lock/unlock staff accounts.");
         }
         if (currentUser.getId() == targetUserId) {
             throw new IllegalArgumentException("You cannot lock your own currently logged-in Admin account.");

@@ -76,7 +76,7 @@ public class VetCareSwingApp extends JFrame {
     private DefaultTableModel remindersTableModel;
     private JTable remindersTable;
 
-    // Tab 6: Admin (Catalog & Staff Control - UC-07)
+    // Tab 6: Admin (Catalog & Staff Control)
     private DefaultTableModel catalogTableModel;
     private JTable catalogTable;
     private Integer editingCatalogId = null;
@@ -93,7 +93,7 @@ public class VetCareSwingApp extends JFrame {
         this.service = new ClinicService();
         this.currentUser = service.findUserByUsername("reception");
 
-        setTitle("VetCare Clinic Management System - Java Swing Implementation (10%)");
+        setTitle("VetCare Clinic Management System");
         setSize(1180, 780);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -134,7 +134,7 @@ public class VetCareSwingApp extends JFrame {
 
         JPanel left = new JPanel(new GridLayout(2, 1));
         left.setOpaque(false);
-        JLabel title = new JLabel("VetCare Clinic Management System (Java Demo)");
+        JLabel title = new JLabel("VetCare Clinic Management System");
         title.setFont(new Font("SansSerif", Font.BOLD, 16));
         title.setForeground(new Color(15, 118, 110));
         lblCurrentUser = new JLabel();
@@ -145,7 +145,7 @@ public class VetCareSwingApp extends JFrame {
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 2));
         right.setOpaque(false);
 
-        JButton btnLogin = new JButton("Login Dialog (UC-01)");
+        JButton btnLogin = new JButton("Staff Login");
         btnLogin.addActionListener(e -> openLoginDialog());
 
         JButton btnSwitchRec = new JButton("Switch: Receptionist");
@@ -162,7 +162,7 @@ public class VetCareSwingApp extends JFrame {
             service.resetSampleData();
             switchUser("reception");
             refreshAllViews();
-            JOptionPane.showMessageDialog(this, "Sample demo data restored cleanly.");
+            JOptionPane.showMessageDialog(this, "Sample data restored cleanly.");
         });
 
         right.add(btnLogin);
@@ -191,7 +191,7 @@ public class VetCareSwingApp extends JFrame {
         User u = service.findUserByUsername(username);
         if (u != null) {
             if (u.isLocked()) {
-                showError("Account \"" + u.getUsername() + "\" is currently locked by Admin (FR-10).");
+                showError("Account \"" + u.getUsername() + "\" is currently locked by Admin.");
                 return;
             }
             currentUser = u;
@@ -218,17 +218,16 @@ public class VetCareSwingApp extends JFrame {
                     new EmptyBorder(6, 12, 6, 12)));
             lblRoleBanner.setForeground(new Color(6, 95, 70));
             lblRoleBanner.setText(
-                    "ROLE: VETERINARIAN — Clinical Examinations, Diagnosis, Prescriptions (UC-04) & Vaccinations (UC-05, BR-03, BR-04). "
+                    "ROLE: VETERINARIAN — Clinical Examinations, Diagnosis, Prescriptions & Vaccinations. "
                     + "[Restricted: Read-only Schedule & Patient History; No Front-Desk Billing or Admin Control]");
 
-            // Veterinarian: Read-only Schedule and Patient History
             apptRowActions.setVisible(false);
             apptBookWrapper.setVisible(false);
             ownersBottomForms.setVisible(false);
 
-            tabs.addTab("Clinical Exam / EMR & Vaccine (UC-04, UC-05)", emrPanel);
-            tabs.addTab("My Schedule (UC-03 Read-Only)", appointmentsPanel);
-            tabs.addTab("Patient EMR Lookup (UC-02 Read-Only)", ownersPetsPanel);
+            tabs.addTab("Clinical Exam, EMR & Vaccine", emrPanel);
+            tabs.addTab("My Schedule (Read-Only)", appointmentsPanel);
+            tabs.addTab("Patient EMR Lookup (Read-Only)", ownersPetsPanel);
             tabs.setSelectedIndex(0);
         } else if ("Admin".equals(role)) {
             headerPanel.setBackground(new Color(238, 242, 255));
@@ -238,18 +237,18 @@ public class VetCareSwingApp extends JFrame {
                     new EmptyBorder(6, 12, 6, 12)));
             lblRoleBanner.setForeground(new Color(49, 46, 129));
             lblRoleBanner.setText(
-                    "ROLE: ADMIN (CLINIC MANAGER) — Service/Medicine/Vaccine Pricing Catalog (FR-03), Staff Account Lock/Unlock (FR-10) & Front-Desk Oversight. "
-                    + "[Restricted: Cannot finalize Clinical EMRs (BR-03)]");
+                    "ROLE: ADMIN (CLINIC MANAGER) — Service/Medicine/Vaccine Pricing Catalog, Staff Account Lock/Unlock & Front-Desk Oversight. "
+                    + "[Restricted: Cannot finalize Clinical EMRs]");
 
             apptRowActions.setVisible(true);
             apptBookWrapper.setVisible(true);
             ownersBottomForms.setVisible(true);
 
-            tabs.addTab("Catalog & Staff Control (UC-07)", adminPanel);
-            tabs.addTab("Appointments & Queue (UC-03)", appointmentsPanel);
-            tabs.addTab("Owners & Pets (UC-02)", ownersPetsPanel);
-            tabs.addTab("Counter Invoicing (UC-06)", invoicingPanel);
-            tabs.addTab("Booster Reminders (UC-08)", remindersPanel);
+            tabs.addTab("Catalog & Staff Control", adminPanel);
+            tabs.addTab("Appointments & Queue", appointmentsPanel);
+            tabs.addTab("Owners & Pets", ownersPetsPanel);
+            tabs.addTab("Counter Invoicing", invoicingPanel);
+            tabs.addTab("Booster Reminders", remindersPanel);
             tabs.setSelectedIndex(0);
         } else {
             // Receptionist
@@ -260,17 +259,17 @@ public class VetCareSwingApp extends JFrame {
                     new EmptyBorder(6, 12, 6, 12)));
             lblRoleBanner.setForeground(new Color(17, 94, 89));
             lblRoleBanner.setText(
-                    "ROLE: RECEPTIONIST — Front-Desk Intake, Owners & Pets (UC-02), Scheduling & Check-in (UC-03), Counter Invoicing (UC-06), Reminders (UC-08). "
-                    + "[Restricted: Cannot record Clinical EMR (BR-03) or edit Catalog/Staff (UC-07)]");
+                    "ROLE: RECEPTIONIST — Front-Desk Intake, Owners & Pets, Scheduling & Check-in, Counter Invoicing, Booster Reminders. "
+                    + "[Restricted: Cannot record Clinical EMR or edit Catalog/Staff]");
 
             apptRowActions.setVisible(true);
             apptBookWrapper.setVisible(true);
             ownersBottomForms.setVisible(true);
 
-            tabs.addTab("Appointments & Queue (UC-03)", appointmentsPanel);
-            tabs.addTab("Owners & Pets (UC-02)", ownersPetsPanel);
-            tabs.addTab("Counter Invoicing (UC-06)", invoicingPanel);
-            tabs.addTab("Booster Reminders (UC-08)", remindersPanel);
+            tabs.addTab("Appointments & Queue", appointmentsPanel);
+            tabs.addTab("Owners & Pets", ownersPetsPanel);
+            tabs.addTab("Counter Invoicing", invoicingPanel);
+            tabs.addTab("Booster Reminders", remindersPanel);
             tabs.setSelectedIndex(0);
         }
 
@@ -287,7 +286,7 @@ public class VetCareSwingApp extends JFrame {
         p.add(new JLabel("Password:"));
         p.add(txtPass);
 
-        int res = JOptionPane.showConfirmDialog(this, p, "Staff Login (UC-01, FR-01)", JOptionPane.OK_CANCEL_OPTION);
+        int res = JOptionPane.showConfirmDialog(this, p, "Staff Login", JOptionPane.OK_CANCEL_OPTION);
         if (res == JOptionPane.OK_OPTION) {
             try {
                 currentUser = service.login(txtUser.getText(), new String(txtPass.getPassword()));
@@ -306,7 +305,7 @@ public class VetCareSwingApp extends JFrame {
         panel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         JPanel searchBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        searchBar.add(new JLabel("Search Owner / Phone / Pet (FR-02):"));
+        searchBar.add(new JLabel("Search Owner / Phone / Pet:"));
         txtOwnerSearch = new JTextField(24);
         JButton btnSearch = new JButton("Search");
         btnSearch.addActionListener(e -> refreshOwnersTable());
@@ -330,22 +329,24 @@ public class VetCareSwingApp extends JFrame {
         };
         petsTable = new JTable(petsTableModel);
 
-        JPanel petsCenter = new JPanel(new BorderLayout(4, 4));
+        JPanel petsCenter = new JPanel(new BorderLayout(4, 6));
         petsCenter.add(new JScrollPane(petsTable), BorderLayout.CENTER);
+        JPanel petBtnBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         JButton btnViewHistory = new JButton("View Selected Pet EMR & Vaccination History");
         btnViewHistory.addActionListener(e -> handleViewPetHistory());
-        petsCenter.add(btnViewHistory, BorderLayout.SOUTH);
+        petBtnBar.add(btnViewHistory);
+        petsCenter.add(petBtnBar, BorderLayout.SOUTH);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 wrapTitled("Owners Directory", new JScrollPane(ownersTable)),
-                wrapTitled("Registered Pets (BR-01)", petsCenter));
+                wrapTitled("Registered Pets", petsCenter));
         split.setResizeWeight(0.48);
         panel.add(split, BorderLayout.CENTER);
 
         ownersBottomForms = new JPanel(new GridLayout(1, 2, 10, 0));
 
         JPanel ownerForm = new JPanel(new GridLayout(5, 2, 6, 4));
-        ownerForm.setBorder(new TitledBorder("Register New Owner (FR-12 Duplicate Phone Check)"));
+        ownerForm.setBorder(new TitledBorder("Register New Owner"));
         txtOwnerName = new JTextField();
         txtOwnerPhone = new JTextField();
         txtOwnerEmail = new JTextField();
@@ -359,7 +360,7 @@ public class VetCareSwingApp extends JFrame {
         ownerForm.add(new JLabel()); ownerForm.add(btnAddOwner);
 
         JPanel petForm = new JPanel(new GridLayout(6, 2, 6, 4));
-        petForm.setBorder(new TitledBorder("Register New Pet (BR-01 Linked Owner)"));
+        petForm.setBorder(new TitledBorder("Register New Pet"));
         cmbPetOwner = new JComboBox<>();
         txtPetName = new JTextField();
         cmbPetSpecies = new JComboBox<>(new String[]{"Dog", "Cat", "Other"});
@@ -443,7 +444,7 @@ public class VetCareSwingApp extends JFrame {
         topBar.add(new JLabel("Status:"));
         cmbApptStatusFilter = new JComboBox<>(new String[]{"All", "Scheduled", "Checked-in", "Completed", "Cancelled"});
         topBar.add(cmbApptStatusFilter);
-        JButton btnFilter = new JButton("Apply Filter (FR-11)");
+        JButton btnFilter = new JButton("Apply Filter");
         btnFilter.addActionListener(e -> refreshAppointmentsTable());
         JButton btnShowAll = new JButton("Show All");
         btnShowAll.addActionListener(e -> {
@@ -462,12 +463,12 @@ public class VetCareSwingApp extends JFrame {
         apptsTable = new JTable(apptsTableModel);
 
         JPanel centerPanel = new JPanel(new BorderLayout(6, 6));
-        centerPanel.add(new JScrollPane(apptsTable), BorderLayout.CENTER);
+        centerPanel.add(wrapTitled("Appointments Schedule", new JScrollPane(apptsTable)), BorderLayout.CENTER);
 
         apptRowActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 2));
-        JButton btnCheckIn = new JButton("Check-in & Record Vitals (FR-13)");
+        JButton btnCheckIn = new JButton("Check-in & Record Vitals");
         btnCheckIn.addActionListener(e -> handleCheckIn());
-        JButton btnCancelAppt = new JButton("Cancel Appointment (FR-14)");
+        JButton btnCancelAppt = new JButton("Cancel Appointment");
         btnCancelAppt.addActionListener(e -> handleCancelAppointment());
         apptRowActions.add(btnCheckIn);
         apptRowActions.add(btnCancelAppt);
@@ -476,7 +477,7 @@ public class VetCareSwingApp extends JFrame {
         panel.add(centerPanel, BorderLayout.CENTER);
 
         JPanel bookPanel = new JPanel(new GridLayout(3, 4, 8, 6));
-        bookPanel.setBorder(new TitledBorder("Book New Appointment (BR-02 Anti-Double Booking)"));
+        bookPanel.setBorder(new TitledBorder("Book New Appointment"));
 
         cmbBookPet = new JComboBox<>();
         cmbBookVet = new JComboBox<>();
@@ -533,7 +534,7 @@ public class VetCareSwingApp extends JFrame {
         p.add(new JLabel("Weight (kg):")); p.add(txtWeight);
         p.add(new JLabel("Temperature (°C):")); p.add(txtTemp);
 
-        int res = JOptionPane.showConfirmDialog(this, p, "Check-in & Record Vitals (FR-13)", JOptionPane.OK_CANCEL_OPTION);
+        int res = JOptionPane.showConfirmDialog(this, p, "Check-in & Record Vitals", JOptionPane.OK_CANCEL_OPTION);
         if (res == JOptionPane.OK_OPTION) {
             try {
                 double w = Double.parseDouble(txtWeight.getText().trim());
@@ -557,7 +558,7 @@ public class VetCareSwingApp extends JFrame {
         try {
             service.cancelAppointment(apptId);
             refreshAllViews();
-            JOptionPane.showMessageDialog(this, "Appointment #" + apptId + " marked as Cancelled (retained per FR-14).");
+            JOptionPane.showMessageDialog(this, "Appointment #" + apptId + " marked as Cancelled.");
         } catch (Exception ex) {
             showError(ex.getMessage());
         }
@@ -578,11 +579,11 @@ public class VetCareSwingApp extends JFrame {
         });
 
         JScrollPane queueScroll = wrapTitled("Checked-in Waiting Queue (Select a patient to examine)", new JScrollPane(queueTable));
-        queueScroll.setPreferredSize(new Dimension(1000, 180));
+        queueScroll.setPreferredSize(new Dimension(1000, 170));
         panel.add(queueScroll, BorderLayout.NORTH);
 
         JPanel formPanel = new JPanel(new BorderLayout(8, 8));
-        formPanel.setBorder(new TitledBorder("Clinical Examination, Prescription & Vaccination (BR-03 Vet Only, BR-04 Screening Gate)"));
+        formPanel.setBorder(new TitledBorder("Clinical Examination, Prescription & Vaccination"));
 
         lblSelectedExam = new JLabel("Select a Checked-in pet from the queue above.");
         lblSelectedExam.setFont(new Font("SansSerif", Font.BOLD, 13));
@@ -593,7 +594,7 @@ public class VetCareSwingApp extends JFrame {
         txtSymptoms = new JTextArea(2, 20);
         txtDiagnosis = new JTextArea(2, 20);
         txtExamNotes = new JTextField();
-        chkScreeningPassed = new JCheckBox("Pet passed basic clinical screening (Required before administering vaccine - BR-04)", true);
+        chkScreeningPassed = new JCheckBox("Pet passed basic clinical screening (Required before administering vaccine)", true);
 
         cmbMedicine = new JComboBox<>();
         txtMedQty = new JTextField("1", 4);
@@ -607,7 +608,7 @@ public class VetCareSwingApp extends JFrame {
 
         cmbVaccine = new JComboBox<>();
         txtVacDate = new JTextField(LocalDate.now().toString(), 9);
-        lblBoosterPreview = new JLabel("Next Booster (FR-07): N/A");
+        lblBoosterPreview = new JLabel("Next Booster: N/A");
         lblBoosterPreview.setForeground(new Color(15, 118, 110));
         cmbVaccine.addActionListener(e -> updateBoosterPreview());
         txtVacDate.addActionListener(e -> updateBoosterPreview());
@@ -618,16 +619,16 @@ public class VetCareSwingApp extends JFrame {
         vacRow.add(txtVacDate);
         vacRow.add(lblBoosterPreview);
 
-        fields.add(new JLabel("Clinical Symptoms * (FR-06):")); fields.add(new JScrollPane(txtSymptoms));
-        fields.add(new JLabel("Diagnosis * (FR-06):")); fields.add(new JScrollPane(txtDiagnosis));
+        fields.add(new JLabel("Clinical Symptoms *:")); fields.add(new JScrollPane(txtSymptoms));
+        fields.add(new JLabel("Diagnosis *:")); fields.add(new JScrollPane(txtDiagnosis));
         fields.add(new JLabel("Clinical Notes:")); fields.add(txtExamNotes);
-        fields.add(new JLabel("Clinical Screening Gate (BR-04):")); fields.add(chkScreeningPassed);
-        fields.add(new JLabel("Prescription Medicine (FR-06):")); fields.add(medRow);
-        fields.add(new JLabel("Administer Vaccine (UC-05, FR-07):")); fields.add(vacRow);
+        fields.add(new JLabel("Clinical Screening:")); fields.add(chkScreeningPassed);
+        fields.add(new JLabel("Prescription Medicine:")); fields.add(medRow);
+        fields.add(new JLabel("Administer Vaccine:")); fields.add(vacRow);
 
         formPanel.add(fields, BorderLayout.CENTER);
 
-        JButton btnCompleteEmr = new JButton("Complete Consultation & Save EMR (BR-03)");
+        JButton btnCompleteEmr = new JButton("Complete Consultation & Save EMR");
         btnCompleteEmr.setFont(new Font("SansSerif", Font.BOLD, 13));
         btnCompleteEmr.addActionListener(e -> handleCompleteConsultation());
         JPanel btnWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -652,14 +653,14 @@ public class VetCareSwingApp extends JFrame {
     private void updateBoosterPreview() {
         Object sel = cmbVaccine.getSelectedItem();
         if (!(sel instanceof CatalogItem)) {
-            lblBoosterPreview.setText("Next Booster (FR-07): N/A");
+            lblBoosterPreview.setText("Next Booster: N/A");
             return;
         }
         try {
             CatalogItem vac = (CatalogItem) sel;
             LocalDate date = LocalDate.parse(txtVacDate.getText().trim());
             LocalDate next = date.plusDays(vac.getBoosterCycleDays());
-            lblBoosterPreview.setText("Next Booster (FR-07): " + next);
+            lblBoosterPreview.setText("Next Booster: " + next);
         } catch (Exception ex) {
             lblBoosterPreview.setText("Next Booster: invalid date");
         }
@@ -698,7 +699,7 @@ public class VetCareSwingApp extends JFrame {
             txtDiagnosis.setText("");
             txtExamNotes.setText("");
             refreshAllViews();
-            JOptionPane.showMessageDialog(this, "EMR saved & Consultation marked as Completed! Ready for Counter Invoicing (BR-05).");
+            JOptionPane.showMessageDialog(this, "EMR saved & Consultation marked as Completed! Ready for Counter Invoicing.");
         } catch (Exception ex) {
             showError(ex.getMessage());
         }
@@ -715,11 +716,11 @@ public class VetCareSwingApp extends JFrame {
         };
         invApptsTable = new JTable(invApptsTableModel);
 
-        JPanel topPanel = new JPanel(new BorderLayout(4, 4));
+        JPanel topPanel = new JPanel(new BorderLayout(4, 6));
         topPanel.add(new JScrollPane(invApptsTable), BorderLayout.CENTER);
-        JButton btnGenerateInv = new JButton("Generate Invoice for Selected Visit (BR-05, FR-09)");
+        JButton btnGenerateInv = new JButton("Generate Invoice for Selected Visit");
         btnGenerateInv.addActionListener(e -> handleGenerateInvoice());
-        JPanel genWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel genWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         genWrap.add(btnGenerateInv);
         topPanel.add(genWrap, BorderLayout.SOUTH);
 
@@ -729,9 +730,9 @@ public class VetCareSwingApp extends JFrame {
         };
         invoicesTable = new JTable(invoicesTableModel);
 
-        JPanel bottomPanel = new JPanel(new BorderLayout(4, 4));
+        JPanel bottomPanel = new JPanel(new BorderLayout(4, 6));
         bottomPanel.add(new JScrollPane(invoicesTable), BorderLayout.CENTER);
-        JPanel payBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 2));
+        JPanel payBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         payBar.add(new JLabel("Payment Method:"));
         cmbPaymentMethod = new JComboBox<>(new String[]{"Cash", "Bank Transfer"});
         payBar.add(cmbPaymentMethod);
@@ -741,8 +742,8 @@ public class VetCareSwingApp extends JFrame {
         bottomPanel.add(payBar, BorderLayout.SOUTH);
 
         JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                wrapTitled("Step 1: Visits (Only 'Completed' visits can be invoiced per BR-05)", topPanel),
-                wrapTitled("Step 2: Generated Invoices (Auto Fee Aggregation FR-09)", bottomPanel));
+                wrapTitled("Step 1: Visits (Only 'Completed' visits can be invoiced)", topPanel),
+                wrapTitled("Step 2: Generated Invoices", bottomPanel));
         split.setResizeWeight(0.5);
         panel.add(split, BorderLayout.CENTER);
         return panel;
@@ -794,12 +795,12 @@ public class VetCareSwingApp extends JFrame {
         };
         remindersTable = new JTable(remindersTableModel);
 
-        panel.add(wrapTitled("Vaccination Booster Schedule (UC-08, FR-07, FR-08)", new JScrollPane(remindersTable)), BorderLayout.CENTER);
+        panel.add(wrapTitled("Vaccination Booster Schedule", new JScrollPane(remindersTable)), BorderLayout.CENTER);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
         JButton btnSendSelected = new JButton("Send Selected Reminder");
         btnSendSelected.addActionListener(e -> handleSendSelectedReminder());
-        JButton btnDailyCheck = new JButton("Run Daily Booster Check (Actor: Time - FR-08)");
+        JButton btnDailyCheck = new JButton("Run Daily Booster Check");
         btnDailyCheck.addActionListener(e -> handleRunDailyBoosterCheck());
         actions.add(btnSendSelected);
         actions.add(btnDailyCheck);
@@ -828,9 +829,9 @@ public class VetCareSwingApp extends JFrame {
         List<Vaccination> dispatched = service.runDailyBoosterCheck();
         refreshAllViews();
         if (dispatched.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Actor [Time] Daily Check: No pending due boosters today.");
+            JOptionPane.showMessageDialog(this, "Daily Check: No pending due boosters today.");
         } else {
-            StringBuilder sb = new StringBuilder("Actor [Time] dispatched " + dispatched.size() + " due booster reminder(s):\n");
+            StringBuilder sb = new StringBuilder("Dispatched " + dispatched.size() + " due booster reminder(s):\n");
             for (Vaccination v : dispatched) {
                 Pet pet = service.findPetById(v.getPetId());
                 Owner owner = pet != null ? service.findOwnerById(pet.getOwnerId()) : null;
@@ -844,12 +845,11 @@ public class VetCareSwingApp extends JFrame {
         }
     }
 
-    // ==================== TAB 6: ADMIN - CATALOG & STAFF CONTROL (UC-07) ====================
+    // ==================== TAB 6: ADMIN - CATALOG & STAFF CONTROL ====================
     private JPanel buildAdminTab() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
         panel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
-        // Left: Pricing Catalog (FR-03)
         catalogTableModel = new DefaultTableModel(
                 new String[]{"ID", "Name", "Category", "Price ($)", "Unit / Cycle"}, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
@@ -857,7 +857,7 @@ public class VetCareSwingApp extends JFrame {
         catalogTable = new JTable(catalogTableModel);
 
         JPanel catForm = new JPanel(new GridLayout(6, 2, 6, 4));
-        catForm.setBorder(new TitledBorder("Add / Edit Service, Medicine or Vaccine (FR-03)"));
+        catForm.setBorder(new TitledBorder("Add / Edit Service, Medicine or Vaccine"));
         txtCatName = new JTextField();
         cmbCatCategory = new JComboBox<>(new String[]{"SERVICE", "MEDICINE", "VACCINE"});
         txtCatPrice = new JTextField("15");
@@ -884,27 +884,27 @@ public class VetCareSwingApp extends JFrame {
         catForm.add(new JLabel()); catForm.add(catButtons);
 
         JPanel leftPanel = new JPanel(new BorderLayout(6, 6));
-        leftPanel.add(wrapTitled("Pricing Catalog (FR-03)", new JScrollPane(catalogTable)), BorderLayout.CENTER);
+        leftPanel.add(wrapTitled("Pricing Catalog", new JScrollPane(catalogTable)), BorderLayout.CENTER);
         leftPanel.add(catForm, BorderLayout.SOUTH);
 
-        // Right: Staff Accounts (FR-10)
         staffTableModel = new DefaultTableModel(
                 new String[]{"ID", "Username", "Full Name", "Role", "Status"}, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         staffTable = new JTable(staffTableModel);
 
-        JPanel staffActions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton btnToggleLock = new JButton("Lock / Unlock Selected Account (FR-10)");
+        JPanel staffActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        JButton btnToggleLock = new JButton("Lock / Unlock Selected Account");
         btnToggleLock.addActionListener(e -> handleToggleUserLock());
         staffActions.add(btnToggleLock);
 
-        JPanel staffTableWrap = new JPanel(new BorderLayout(4, 4));
-        staffTableWrap.add(wrapTitled("Clinic Staff Accounts (FR-10)", new JScrollPane(staffTable)), BorderLayout.CENTER);
+        JPanel staffTableWrap = new JPanel(new BorderLayout(4, 6));
+        staffTableWrap.add(new JScrollPane(staffTable), BorderLayout.CENTER);
         staffTableWrap.add(staffActions, BorderLayout.SOUTH);
+        wrapTitled("Clinic Staff Accounts", staffTableWrap);
 
         JPanel staffForm = new JPanel(new GridLayout(5, 2, 6, 4));
-        staffForm.setBorder(new TitledBorder("Create Staff Account (FR-10)"));
+        staffForm.setBorder(new TitledBorder("Create Staff Account"));
         txtStaffUsername = new JTextField();
         txtStaffPassword = new JTextField("123456");
         txtStaffFullName = new JTextField();
@@ -1174,14 +1174,13 @@ public class VetCareSwingApp extends JFrame {
         }
     }
 
-    private JScrollPane wrapTitled(String title, Component inner) {
-        JScrollPane sp = (inner instanceof JScrollPane) ? (JScrollPane) inner : new JScrollPane(inner);
-        sp.setBorder(new TitledBorder(title));
-        return sp;
+    private <T extends JComponent> T wrapTitled(String title, T inner) {
+        inner.setBorder(new TitledBorder(title));
+        return inner;
     }
 
     private void showError(String msg) {
-        JOptionPane.showMessageDialog(this, msg, "Business Rule / Validation Alert", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, msg, "Validation Alert", JOptionPane.ERROR_MESSAGE);
     }
 
     public static void main(String[] args) {
