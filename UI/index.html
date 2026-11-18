@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VetCare - Professional Veterinary Clinic Management System</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#0D9488', // Medical Teal
+              hover: '#0F766E',
+              light: '#F0FDFA',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .badge { padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+    .badge-scheduled { background-color: #FEF3C7; color: #92400E; }
+    .badge-checkedin { background-color: #E0F2FE; color: #075985; }
+    .badge-completed { background-color: #DCFCE7; color: #166534; }
+    .badge-cancelled { background-color: #F1F5F9; color: #64748B; }
+    .badge-danger { background-color: #FEE2E2; color: #991B1B; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex antialiased selection:bg-teal-600 selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- 1. FIXED LEFT SIDEBAR (250px)                                            -->
+  <!-- ========================================================================= -->
+  <aside class="w-[250px] bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 left-0 z-30 select-none">
+    
+    <!-- Clinic Brand Header -->
+    <div class="h-16 px-5 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="navigateTo('screen-dashboard')">
+        <div class="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white shadow-sm shadow-teal-500/30 font-bold text-lg">
+          🐾
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-xl tracking-tight text-slate-900">Vet<span class="text-teal-600">Care</span></span>
+            <span class="text-[10px] font-semibold bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded-full border border-teal-200">SaaS</span>
+          </div>
+          <p class="text-[11px] text-slate-500 font-medium">Clinic Management</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu Items -->
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <div class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Main Navigation</div>
+      
+      <!-- Nav 1: Dashboard -->
+      <button id="nav-dashboard" onclick="navigateTo('screen-dashboard')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all group bg-teal-50 text-teal-700 font-semibold">
+        <div class="flex items-center gap-3">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-teal-600"></i>
+          <span>Dashboard (Intake)</span>
+        </div>
+        <span class="text-[10px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-800 font-semibold" id="badge-queue-count">4</span>
+      </button>
+
+      <!-- Nav 2: EMR Exam -->
+      <button id="nav-emr" onclick="navigateTo('screen-emr')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all group">
+        <div class="flex items-center gap-3">
+          <i data-lucide="stethoscope" class="w-4 h-4 text-slate-400 group-hover:text-slate-700"></i>
+          <span>Clinical EMR (UC-04)</span>
+        </div>
+        <span id="badge-emr-role" class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">Vet Only</span>
+      </button>
+
+      <!-- Nav 3: Vaccination -->
+      <button id="nav-vaccine" onclick="navigateTo('screen-vaccine')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all group">
+        <div class="flex items-center gap-3">
+          <i data-lucide="syringe" class="w-4 h-4 text-slate-400 group-hover:text-slate-700"></i>
+          <span>Vaccine & Boosters</span>
+        </div>
+        <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-semibold">1 Due</span>
+      </button>
+
+      <!-- Nav 4: Billing -->
+      <button id="nav-billing" onclick="navigateTo('screen-billing')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all group">
+        <div class="flex items-center gap-3">
+          <i data-lucide="receipt" class="w-4 h-4 text-slate-400 group-hover:text-slate-700"></i>
+          <span>Cashier Invoicing</span>
+        </div>
+        <span id="badge-billing-role" class="text-[10px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-800 font-semibold">Open</span>
+      </button>
+
+      <!-- Nav 5: Admin Catalog (Admin Only) -->
+      <div id="nav-admin" class="pt-2 hidden">
+        <div class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">System Admin</div>
+        <button onclick="navigateTo('screen-admin')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all group">
+          <div class="flex items-center gap-3">
+            <i data-lucide="sliders" class="w-4 h-4 text-indigo-500"></i>
+            <span>Pricing & Staff (UC-07)</span>
+          </div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 font-semibold">Admin</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Sidebar Footer: Active Profile -->
+    <div class="p-3 border-t border-slate-200 bg-slate-50">
+      <div class="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <img id="user-profile-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces" 
+               alt="User" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+          <div class="text-left overflow-hidden">
+            <p id="user-profile-name" class="text-xs font-bold text-slate-900 truncate">Sarah Jenkins</p>
+            <p id="user-profile-title" class="text-[11px] text-teal-700 font-medium truncate">Receptionist</p>
+          </div>
+        </div>
+        <button onclick="showToast('Sign-out session reset clean.')" title="Sign Out" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-md transition-colors">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN WORKSPACE CONTAINER (Offset by 250px sidebar)                       -->
+  <!-- ========================================================================= -->
+  <div class="pl-[250px] flex-1 flex flex-col min-h-screen">
+    
+    <!-- 2. TOPBAR HEADER WITH ROLE SWITCHER -->
+    <header class="h-16 bg-white border-b border-slate-200 px-6 sticky top-0 z-20 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-3">
+        <h2 id="topbar-breadcrumb" class="font-bold text-base text-slate-900">Clinic Dashboard & Patient Intake Queue</h2>
+        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200" id="topbar-live-clock">08:45:12</span>
+      </div>
+
+      <!-- Quick Role Switcher Buttons -->
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
+          <span class="text-slate-500 font-semibold px-2">Switch Role:</span>
+          <button id="btn-role-receptionist" onclick="setRole('receptionist')" class="px-3 py-1.5 rounded-md bg-white text-teal-800 font-bold shadow-sm transition border border-teal-200">Receptionist</button>
+          <button id="btn-role-veterinarian" onclick="setRole('veterinarian')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 font-medium transition">Veterinarian</button>
+          <button id="btn-role-admin" onclick="setRole('admin')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 font-medium transition">Admin</button>
+        </div>
+
+        <button onclick="openNewAppointmentModal()" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5 transition">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>New Visit (UC-03)</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ROLE PERMISSION BANNER -->
+    <div id="role-permission-banner" class="px-6 py-2 border-b text-xs font-medium flex items-center justify-between transition-colors bg-teal-50 border-teal-200 text-teal-800">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-teal-600 animate-pulse"></span>
+        <span id="role-banner-content"><strong>ROLE: RECEPTIONIST</strong> — Intake, Appointments (UC-03), Vitals Check-in (FR-13), Invoicing (UC-06).</span>
+      </div>
+      <span class="text-[11px] text-teal-700 font-semibold">Course: Software Requirements Analysis & Specification</span>
+    </div>
+
+    <!-- MAIN VIEW AREA -->
+    <main class="flex-1 p-6 space-y-6">
+
+      <!-- ===================================================================== -->
+      <!-- SCREEN 1: DASHBOARD OVERVIEW                                          -->
+      <!-- ===================================================================== -->
+      <section id="screen-dashboard" class="space-y-6">
+        
+        <!-- 4 Metric Cards -->
+        <div class="grid grid-cols-4 gap-5">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500">Today's Visits</p>
+              <h3 class="text-2xl font-bold text-slate-900 mt-1">5</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">3 scheduled, 2 checked-in</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">📅</div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500">Checked-in Waiting Queue</p>
+              <h3 class="text-2xl font-bold text-teal-600 mt-1">2</h3>
+              <p class="text-[11px] text-teal-600 font-medium mt-0.5">Ready for examination</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl">⏳</div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500">Completed Visits</p>
+              <h3 class="text-2xl font-bold text-emerald-600 mt-1">1</h3>
+              <p class="text-[11px] text-emerald-600 font-medium mt-0.5">EMR signed by Vet</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">✅</div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500">Today's Revenue Collected</p>
+              <h3 class="text-2xl font-bold text-indigo-600 mt-1">$43.00</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">Invoice #INV-001 settled</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">💰</div>
+          </div>
+        </div>
+
+        <!-- Appointments Table & Waiting Queue -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+            <div>
+              <h3 class="font-bold text-sm text-slate-900">Today's Patient Schedule & Intake Queue</h3>
+              <p class="text-xs text-slate-500">Double booking guard (BR-02), Vitals check-in (FR-13), Retained cancellations (FR-14)</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500">Filter status:</span>
+              <select class="text-xs p-1.5 border border-slate-200 rounded-lg bg-white">
+                <option>All Statuses</option>
+                <option>Scheduled</option>
+                <option>Checked-in</option>
+                <option>Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">Slot</th>
+                <th class="px-4 py-3">Patient & Owner (FR-12)</th>
+                <th class="px-4 py-3">Species / Breed</th>
+                <th class="px-4 py-3">Assigned Vet</th>
+                <th class="px-4 py-3">Requested Service</th>
+                <th class="px-4 py-3">Vitals (kg / °C)</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-queue-tbody">
+              <!-- Rendered dynamically via app.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- SCREEN 3: CLINICAL EXAMINATION & EMR (UC-04, UC-05)                   -->
+      <!-- ===================================================================== -->
+      <section id="screen-emr" class="hidden space-y-5">
+        
+        <!-- Severe Allergy Banner -->
+        <div class="p-4 bg-rose-50 border-l-4 border-rose-600 rounded-r-xl flex items-start justify-between shadow-sm">
+          <div class="flex items-start gap-3">
+            <span class="text-xl">⚠️</span>
+            <div>
+              <h4 class="font-bold text-rose-900 text-xs uppercase tracking-wider">Critical Warning: Severe Penicillin / Amoxicillin Allergy</h4>
+              <p class="text-xs text-rose-700 mt-0.5">Patient "Bong" has recorded anaphylaxis reaction to Beta-lactam antibiotics. Safe alternative Cefalexin / Macrolide only.</p>
+            </div>
+          </div>
+          <span class="badge badge-danger">High Risk</span>
+        </div>
+
+        <!-- Clinical Exam Layout -->
+        <div class="grid grid-cols-12 gap-5">
+          <!-- Patient Summary Card -->
+          <div class="col-span-4 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+              <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-2xl">🐶</div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Bong (Poodle)</h3>
+                <p class="text-xs text-slate-500">Record #PET-089 • 2.5 yrs • Female</p>
+              </div>
+            </div>
+
+            <div class="space-y-2.5 text-xs">
+              <div class="flex justify-between text-slate-600">
+                <span>Owner:</span>
+                <span class="font-semibold text-slate-900">Nguyen Van A (0901 234 567)</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>Recorded Weight (FR-13):</span>
+                <span class="font-bold text-slate-900">4.2 kg</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>Body Temperature (FR-13):</span>
+                <span class="font-bold text-slate-900">38.6 °C (Normal)</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>Heart / Respiration:</span>
+                <span class="font-semibold text-slate-900">110 bpm / 24 bpm</span>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 text-[11px] text-slate-400">
+              Assigned Veterinarian: <b>Dr. Minh Khoi, DVM</b>
+            </div>
+          </div>
+
+          <!-- Clinical Form: Symptoms, Diagnosis, Rx, Vaccines -->
+          <div class="col-span-8 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <h3 class="font-bold text-sm text-slate-900 pb-2 border-b border-slate-100">Clinical Diagnosis & Treatment Plan (UC-04, UC-05)</h3>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Clinical Symptoms * (FR-06)</label>
+                <textarea rows="2" class="w-full text-xs p-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500" readonly>Severe skin pruritus near abdomen and paws, scratching continuously for 3 days. Mild erythema, no fever.</textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Definitive Diagnosis * (FR-06)</label>
+                <textarea rows="2" class="w-full text-xs p-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500" readonly>Atopic Dermatitis with secondary superficial bacterial infection.</textarea>
+              </div>
+            </div>
+
+            <!-- Prescription table -->
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+              <span class="text-xs font-bold text-slate-800">Prescription Medication (FR-06 - Penicillin-Free Safe Alternatives)</span>
+              <table class="w-full text-left text-xs bg-white rounded-lg border border-slate-200 overflow-hidden">
+                <thead class="bg-slate-100 text-slate-600 font-semibold">
+                  <tr>
+                    <th class="p-2">Medicine / Strength</th>
+                    <th class="p-2">Dosage & Frequency</th>
+                    <th class="p-2">Qty</th>
+                    <th class="p-2 text-right">Price</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr>
+                    <td class="p-2 font-medium text-slate-900">Cefalexin 250mg</td>
+                    <td class="p-2 text-slate-500">1/2 tablet twice daily after meals</td>
+                    <td class="p-2">14 tabs</td>
+                    <td class="p-2 text-right font-semibold">$8.00</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-900">Apoquel 3.6mg (Anti-itch)</td>
+                    <td class="p-2 text-slate-500">1 tablet daily in the morning</td>
+                    <td class="p-2">7 tabs</td>
+                    <td class="p-2 text-right font-semibold">$12.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pre-screening & Vaccine section -->
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+              <span class="text-xs font-bold text-slate-800">Vaccine Administration (UC-05, BR-04 Screening Gate, FR-07)</span>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="chk-screening-passed" checked class="w-4 h-4 text-teal-600 rounded">
+                <label for="chk-screening-passed" class="text-xs text-slate-700 font-medium">
+                  Passed basic clinical pre-screening (Required before injection per BR-04)
+                </label>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-xs pt-1">
+                <div>
+                  <select id="select-vaccine-item" class="w-full bg-white p-2 border border-slate-200 rounded-lg">
+                    <option value="Rabies">Rabies Vaccine (Annual Booster - 365 Days)</option>
+                    <option value="DHPPi">DHPPi 5-in-1 Dog Vaccine (21 Days Cycle)</option>
+                  </select>
+                </div>
+                <div class="flex items-center text-xs text-teal-700 font-medium bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200">
+                  ⭐ Next Booster Due (FR-07): <b>2027-11-18 (In 365 days)</b>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+              <button onclick="handleFinalizeEmr()" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                Finalize Consultation & Sign EMR (Vet Only - BR-03)
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- SCREEN 4: VACCINATION TRACKER & REMINDERS (UC-05, UC-08)              -->
+      <!-- ===================================================================== -->
+      <section id="screen-vaccine" class="hidden space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Vaccination Records & Automated Booster Reminders (UC-08)</h2>
+            <p class="text-xs text-slate-500">Automated daily job checks for due boosters and dispatches SMS/Email notifications (FR-08)</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-3.5">Vaccine Record #</th>
+                <th class="p-3.5">Patient & Breed</th>
+                <th class="p-3.5">Owner Contact</th>
+                <th class="p-3.5">Vaccine Type</th>
+                <th class="p-3.5">Administered Date</th>
+                <th class="p-3.5">Next Booster Due (FR-07)</th>
+                <th class="p-3.5">Status</th>
+                <th class="p-3.5 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="p-3.5 font-bold text-slate-800">#VAC-101</td>
+                <td class="p-3.5 font-semibold text-slate-900">Milo (Golden Retriever)</td>
+                <td class="p-3.5 text-slate-600">Nguyen Minh Dang (0901234567)</td>
+                <td class="p-3.5 text-slate-700">Rabies Vaccine (Annual)</td>
+                <td class="p-3.5 text-slate-500">2026-11-18</td>
+                <td class="p-3.5 font-bold text-teal-700">2027-11-18 (In 365 days)</td>
+                <td class="p-3.5"><span class="badge badge-completed">Protected</span></td>
+                <td class="p-3.5 text-right"><span class="text-xs text-slate-400">Scheduled</span></td>
+              </tr>
+              <tr class="bg-amber-50/40">
+                <td class="p-3.5 font-bold text-slate-800">#VAC-102</td>
+                <td class="p-3.5 font-semibold text-slate-900">Kiki (Poodle)</td>
+                <td class="p-3.5 text-slate-600">Tran Thi Mai (0912345678)</td>
+                <td class="p-3.5 text-slate-700">DHPPi 5-in-1 Dose #2</td>
+                <td class="p-3.5 text-slate-500">2026-10-28</td>
+                <td class="p-3.5 font-bold text-amber-700">2026-11-18 (DUE TODAY)</td>
+                <td class="p-3.5"><span class="badge badge-scheduled">Due Today</span></td>
+                <td class="p-3.5 text-right">
+                  <button onclick="showToast('Dispatched automated SMS reminder to Tran Thi Mai')" class="px-2.5 py-1 bg-amber-100 text-amber-800 font-semibold rounded text-xs hover:bg-amber-200 transition">Send SMS</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- SCREEN 5: CASHIER INVOICING (UC-06, BR-05, FR-09)                     -->
+      <!-- ===================================================================== -->
+      <section id="screen-billing" class="hidden space-y-5">
+        <div>
+          <h2 class="text-base font-bold text-slate-900">Front-Desk Cashier & Fee Collection (UC-06)</h2>
+          <p class="text-xs text-slate-500">Auto fee aggregation: Consultation + Medicine + Vaccines (FR-09), Non-completed visits blocked (BR-05)</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-5">
+          <!-- Itemized Breakdown Card -->
+          <div class="col-span-8 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 class="font-bold text-sm text-slate-900">Itemized Bill for Patient: Bong (Poodle)</h3>
+                <p class="text-xs text-slate-500">Visit #2 • Completed by Dr. Minh Khoi</p>
+              </div>
+              <span id="billing-status-badge" class="badge badge-scheduled">Pending Payment</span>
+            </div>
+
+            <table class="w-full text-left text-xs bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+              <thead class="bg-slate-100 text-slate-600 font-semibold">
+                <tr>
+                  <th class="p-3">Service / Medication Description</th>
+                  <th class="p-3">Category</th>
+                  <th class="p-3">Qty</th>
+                  <th class="p-3 text-right">Amount ($)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="p-3 font-medium text-slate-900">Specialist Clinical Examination</td>
+                  <td class="p-3 text-slate-500">Service Fee</td>
+                  <td class="p-3">1 visit</td>
+                  <td class="p-3 text-right font-semibold">$25.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-medium text-slate-900">Cefalexin 250mg (Penicillin Safe)</td>
+                  <td class="p-3 text-slate-500">Medicine</td>
+                  <td class="p-3">1 box</td>
+                  <td class="p-3 text-right font-semibold">$8.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-medium text-slate-900">Apoquel 3.6mg Anti-itch</td>
+                  <td class="p-3 text-slate-500">Medicine</td>
+                  <td class="p-3">1 box</td>
+                  <td class="p-3 text-right font-semibold">$12.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-medium text-slate-900">Rabies Booster Dose</td>
+                  <td class="p-3 text-slate-500">Vaccine</td>
+                  <td class="p-3">1 dose</td>
+                  <td class="p-3 text-right font-semibold">$20.00</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="flex justify-end pt-2">
+              <div class="w-64 space-y-1.5 text-xs">
+                <div class="flex justify-between text-slate-500">
+                  <span>Subtotal:</span>
+                  <span class="font-medium text-slate-800">$65.00</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                  <span>VAT (0% Medical):</span>
+                  <span class="font-medium text-slate-800">$0.00</span>
+                </div>
+                <div class="pt-2 border-t border-slate-200 flex justify-between font-bold text-sm text-slate-900">
+                  <span>Total Amount Due (FR-09):</span>
+                  <span class="text-teal-700 text-base">$65.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checkout Controls -->
+          <div class="col-span-4 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4 flex flex-col justify-between">
+            <div class="space-y-3">
+              <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500">Payment Processing</h4>
+              
+              <div class="space-y-2 text-xs">
+                <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50">
+                  <input type="radio" name="pay-radio" value="Cash" checked>
+                  <span class="font-medium text-slate-800">💵 Cash at Counter</span>
+                </label>
+                <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50">
+                  <input type="radio" name="pay-radio" value="QR">
+                  <span class="font-medium text-slate-800">📱 QR Bank Transfer</span>
+                </label>
+                <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50">
+                  <input type="radio" name="pay-radio" value="POS">
+                  <span class="font-medium text-slate-800">💳 Card / POS</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-4">
+              <button onclick="handleConfirmPayment()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition">
+                Confirm Payment ($65.00)
+              </button>
+              <button onclick="openPrintInvoiceModal()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">
+                Print Official Receipt
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- SCREEN 6: SYSTEM ADMIN CATALOG & STAFF CONTROL (UC-07)                 -->
+      <!-- ===================================================================== -->
+      <section id="screen-admin" class="hidden space-y-5">
+        <div>
+          <h2 class="text-base font-bold text-slate-900">Pricing Catalog & Staff Security Control (UC-07)</h2>
+          <p class="text-xs text-slate-500">Service & drug pricing configuration (FR-03), Staff account lock/unlock security enforcement (FR-10)</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-5">
+          <!-- Pricing Catalog -->
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-3">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Pricing Catalog (FR-03)</h3>
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-semibold border-b">
+                <tr>
+                  <th class="p-2">Item Name</th>
+                  <th class="p-2">Category</th>
+                  <th class="p-2 text-right">Price ($)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr><td class="p-2 font-medium">General Consultation</td><td class="p-2 text-slate-500">Service</td><td class="p-2 text-right font-bold">$15.00</td></tr>
+                <tr><td class="p-2 font-medium">Specialist Check-up</td><td class="p-2 text-slate-500">Service</td><td class="p-2 text-right font-bold">$25.00</td></tr>
+                <tr><td class="p-2 font-medium">Amoxicillin 250mg</td><td class="p-2 text-slate-500">Medicine</td><td class="p-2 text-right font-bold">$8.00</td></tr>
+                <tr><td class="p-2 font-medium">Rabies Vaccine</td><td class="p-2 text-slate-500">Vaccine</td><td class="p-2 text-right font-bold">$20.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Staff Control -->
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-3">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Staff Accounts & Lock Switch (FR-10)</h3>
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-semibold border-b">
+                <tr>
+                  <th class="p-2">Username</th>
+                  <th class="p-2">Full Name</th>
+                  <th class="p-2">Role</th>
+                  <th class="p-2 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="p-2 font-mono font-bold text-slate-800">reception</td>
+                  <td class="p-2">Sarah Jenkins</td>
+                  <td class="p-2">Receptionist</td>
+                  <td class="p-2 text-right"><span class="badge badge-completed">Active</span></td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-mono font-bold text-slate-800">dr.khoi</td>
+                  <td class="p-2">Dr. Minh Khoi</td>
+                  <td class="p-2">Veterinarian</td>
+                  <td class="p-2 text-right"><button onclick="alert('Account lock toggle simulated (FR-10)')" class="text-xs text-rose-600 font-semibold hover:underline">Lock</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: NEW APPOINTMENT (UC-03, BR-02, FR-12)                             -->
+  <!-- ========================================================================= -->
+  <div id="modalNewAppointment" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <h3 class="font-bold text-base text-slate-900">Book New Appointment (UC-03)</h3>
+        <button onclick="closeNewAppointmentModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Owner Full Name *</label>
+          <input type="text" id="book-owner-name" value="Pham Minh Tuan" class="w-full p-2 border border-slate-200 rounded-lg">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Phone Number * (FR-12 Check)</label>
+          <input type="text" id="book-owner-phone" value="0909888777" class="w-full p-2 border border-slate-200 rounded-lg">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Pet Name *</label>
+          <input type="text" id="book-pet-name" value="Bong" class="w-full p-2 border border-slate-200 rounded-lg">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Veterinarian *</label>
+            <select id="book-vet-select" class="w-full p-2 border border-slate-200 rounded-lg">
+              <option value="Dr. Minh Khoi">Dr. Minh Khoi</option>
+              <option value="Dr. Gia Huy">Dr. Gia Huy</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Time Slot * (BR-02)</label>
+            <select id="book-time-slot" class="w-full p-2 border border-slate-200 rounded-lg">
+              <option value="14:30">14:30</option>
+              <option value="15:30">15:30</option>
+              <option value="09:30">09:30 (Occupied)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="closeNewAppointmentModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs">Cancel</button>
+        <button onclick="handleConfirmBooking()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-xs">Confirm Booking (BR-02)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- App Logic Script -->
+  <script src="app.js"></script>
+</body>
+</html>
